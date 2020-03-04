@@ -56,11 +56,13 @@ app.delete('/lists/:id', (req, res) => {
 })
 
 app.get('/lists/:listId/tasks', (req, res) => {
+  console.log(req.params, "_listID")
+  console.log(req.params, "_id")
   Task.find({
-    _listid: req.params._listId
+    _listId: req.params.listId
   })
   .then((tasks) => {
-    console.log(`${tasks} here`)
+    // console.log(`${tasks} here`)
     res.send(tasks);
   });
 })
