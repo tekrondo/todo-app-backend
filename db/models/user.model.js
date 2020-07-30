@@ -55,9 +55,9 @@ UserSchema.methods.generateAccessAuthToken = function() {
 
 UserSchema.methods.generateRefreshAuthToken = function() {
   return new Promise((resolve, reject) => {
-    crypto.randomBytes(64, (err, buffer) => {
+    crypto.randomBytes(64, (err, buff) => {
       if(!err) {
-         let token = buffer.toString('hex');
+         let token = buff.toString('hex');
 
          return resolve(token)
       }else{
@@ -90,7 +90,7 @@ UserSchema.statics.findByIdAndToken = function(_id, token) {
   })
 }
 
-UserSchema.statics.findByCredentials = function(password, email) {
+UserSchema.statics.findByCredentials = function(email, password) {
   let User = this;
   return User.findOne({ email }).then((user) => {
     if(!user) return Promise.reject()
@@ -99,7 +99,7 @@ UserSchema.statics.findByCredentials = function(password, email) {
       bcrypt.compare(password, user.password, (err, res) => {
         if(res) resolve(user);
         else{
-          reject()
+          reject();
         }
       })
     })
