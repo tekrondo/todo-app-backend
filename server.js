@@ -146,6 +146,10 @@ app.post('/users/login', (req, res) => {
   })
 })
 
+app.get('/users/me/access-token', (req, res) => {
+  
+});
+
 app.listen(3000, () => {
   console.log('listening on port: 3000');
 })
