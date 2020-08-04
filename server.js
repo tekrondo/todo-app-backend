@@ -13,6 +13,44 @@ app.use(function (req, res, next) {
   next();
 });
 
+let verifySession = (req, res, next) =>{
+  let refreshToken = req.header('x-refresh-token');
+  let _id = req.header('_id');
+
+  User.findByIdAndToken(_id, refreshToken).then((user) => {
+    if(!user) {
+      return Promise.reject({
+        "error": "User not found. Check refresh token and id are valid"
+      })
+    }
+
+    req.user_id = user._id;
+    req.userObject = user;
+    req.refreshToken = refreshToken;
+
+    let isSessionValid = false;
+
+    user.sessions.forEach((session) => {
+      if(session.token === refreshToken) {
+        if(User.hasRefreshTokenExpired(session.expiresAt) === false){
+          isSessionValid = true;
+        }
+      }
+    })
+
+    if(isSessionValid) {
+      next();
+    }else{
+      return Promise.reject({
+        "error": "The refresh token is expired or the session is invalid"
+      })
+    }
+
+  }).catch((e) => {
+    res.status(401).send(e);
+  })
+}
+
 const { List, Task, User } = require('./db/models')
 
 app.get('/lists', (req, res) => {
@@ -146,9 +184,13 @@ app.post('/users/login', (req, res) => {
   })
 })
 
-app.get('/users/me/access-token', (req, res) => {
-  
-});
+app.get('/users/me/access-token', verifySession, (req, res) => {
+  req.userObject.generateAccessAuthToken().then((accessToken) => {
+    res.header('x-access-token', accessToken).send({ accessToken })
+  }).catch((e) => {
+    res.status(400).send(e);
+  })
+}); 
 
 app.listen(3000, () => {
   console.log('listening on port: 3000');

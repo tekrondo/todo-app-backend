@@ -58,7 +58,6 @@ UserSchema.methods.generateRefreshAuthToken = function() {
     crypto.randomBytes(64, (err, buff) => {
       if(!err) {
          let token = buff.toString('hex');
-
          return resolve(token)
       }else{
         reject()
@@ -86,7 +85,7 @@ UserSchema.statics.findByIdAndToken = function(_id, token) {
 
   return User.findOne({
     _id,
-    "sessions.token": token
+    'sessions.token': token
   })
 }
 
@@ -107,7 +106,7 @@ UserSchema.statics.findByCredentials = function(email, password) {
 }
 
 UserSchema.statics.hasRefreshTokenExpired = (expiresAt) => {
-  let secondsSinceEpoch = Date.now / 1000;
+  let secondsSinceEpoch = Date.now() / 1000;
   if(expiresAt > secondsSinceEpoch ) {
     return false;
   } else {
